@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useMatch } from 'react-router-dom'
 
 const Menu = () => {
   const padding = {
@@ -30,12 +31,15 @@ const Menu = () => {
   )
 }
 
-const AnecdoteList = ({ anecdotes }) => (
+const AnecdoteList = ({ anecdotes, notification }) => (
   <div>
+    {notification}
     <h2>Anecdotes</h2>
     <ul>
       {anecdotes.map(anecdote => (
-        <li key={anecdote.id}>{anecdote.content}</li>
+        <li key={anecdote.id}>
+          <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>
       ))}
     </ul>
   </div>
@@ -123,6 +127,25 @@ const CreateNew = props => {
   )
 }
 
+const Anecdote = ({ anecdote }) => {
+  return (
+    <div>
+      <h2>{anecdote.content}</h2>
+      <p>has {anecdote.votes} votes</p>
+      <p>
+        For more info see{' '}
+        <a
+          href={anecdote.info}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {anecdote.info}
+        </a>
+      </p>
+    </div>
+  )
+}
+
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
     {
@@ -142,13 +165,22 @@ const App = () => {
   ])
 
   const [notification, setNotification] = useState('')
+  const navigate = useNavigate()
 
   const addNew = anecdote => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification(`a new anecdote ${anecdote.content} created!`)
+    setTimeout(() => {
+      setNotification('')
+    }, 5000)
+    navigate('/')
   }
 
   const anecdoteById = id => anecdotes.find(a => a.id === id)
+
+  const match = useMatch('/anecdotes/:id')
+  const anecdote = match ? anecdoteById(Number(match.params.id)) : null
 
   const vote = id => {
     const anecdote = anecdoteById(id)
@@ -168,7 +200,16 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={<AnecdoteList anecdotes={anecdotes} />}
+          element={
+            <AnecdoteList
+              anecdotes={anecdotes}
+              notification={notification}
+            />
+          }
+        />
+        <Route
+          path="/anecdotes/:id"
+          element={<Anecdote anecdote={anecdote} />}
         />
         <Route
           path="/about"
