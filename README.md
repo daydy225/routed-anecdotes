@@ -10,3 +10,5 @@
 ## step 1: Simplify the anecdote creation form of your application with the useField custom hook
 
 ## step 2: Expand the functionality of the useField hook so that it offers a new reset operation for clearing the field
+
+## step 3: make the necessary changes to get rid of the Invalid value for prop 'reset' on input tag console warning
